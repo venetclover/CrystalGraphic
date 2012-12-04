@@ -2,14 +2,20 @@ package crystal.client;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +25,8 @@ import java.util.TreeSet;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -55,14 +63,17 @@ import crystal.util.RunIt.Output;
  * @author rtholmes & brun
  * 
  */
-public class ConflictClient implements ConflictDaemon.ComputationListener {
+public class ConflictClient implements ConflictDaemon.ComputationListener, MouseListener {
 
 	private Logger _log = Logger.getLogger(this.getClass());
-
+	private String graphicDirectory;
 	/**
 	 * UI frame.
 	 */
 	private JFrame _frame = null;
+	
+	private JDialog presentDialog;
+	private int presentDialog_source = 0;
 
 	/**
 	 * A map that tells us which ImageIcon contained in a JLabel) corresponds to each DataSource on the GUI.
@@ -73,9 +84,100 @@ public class ConflictClient implements ConflictDaemon.ComputationListener {
 	 * Preference store used by the client.
 	 */
 	private ClientPreferences _preferences;
+	
+	private JPanel PresentPanel1 ;
+	private JPanel PresentPanel2 ;
+	private JPanel PresentPanel3 ;
+	
+	private JButton PresentButton1;
+	private JButton PresentButton2;
+	
+	private ArrayList<String> image_map; 
 
 	public ConflictClient() {
 		super();
+		
+		image_map = new ArrayList<String>();
+		PresentPanel1 = new JPanel();
+		PresentPanel1.setLayout(new BoxLayout(PresentPanel1, BoxLayout.X_AXIS));
+		
+		PresentPanel2 = new JPanel();
+		PresentPanel2.setSize(150,30);
+		
+		PresentPanel3 = new JPanel();
+		PresentPanel3.setSize(80,30);
+		PresentPanel3.setLayout(new BoxLayout(PresentPanel3, BoxLayout.X_AXIS));
+		
+		
+		
+		PresentButton1 = new JButton("Present");
+		PresentButton2 = new JButton("Present");
+		
+		PresentButton1.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 8));
+		PresentButton1.setPreferredSize(new Dimension(60,25));
+		
+		PresentButton2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 8));
+		PresentButton2.setPreferredSize(new Dimension(60,25));
+
+		//PresentPanel3.add(PresentButton1);
+		//PresentPanel3.add(PresentButton2);
+		
+		PresentPanel1.add(PresentPanel2);
+		PresentPanel1.add(PresentPanel3);
+		
+		//PresentButton1.addMouseListener(this);
+	/*	PresentButton1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String strPath = "./dropbox/tmp/pic/01/";//$$$$
+				// TODO Auto-generated method stub
+				File file = new File(strPath);
+				if (file.isDirectory()) {
+					String[] files = PresentPanel.filterFiles(file.list());
+					PresentPanel presentPanel = new PresentPanel(files, _frame,strPath);
+					presentPanel.setPicPath(strPath);
+					presentDialog = new JDialog(_frame);
+					presentDialog.setSize(500, 500);
+					presentDialog.add(presentPanel);
+					presentDialog
+							.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					presentDialog.setVisible(true);
+				} else {
+					System.err.println("There is no " + strPath
+							+ "folder!");
+					return;
+				}
+
+			}
+		});*/
+		
+		
+		PresentButton2.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String strPath = "./dropbox/tmp/pic/2/";//$$$$
+				// TODO Auto-generated method stub
+				File file = new File(strPath);
+				if (file.isDirectory()) {
+					String[] files = PresentPanel.filterFiles(file.list());
+					PresentPanel presentPanel = new PresentPanel(files, _frame,strPath, image_map);
+					presentPanel.setPicPath(strPath);
+					presentDialog = new JDialog(_frame);
+					presentDialog.setSize(500, 500);
+					presentDialog.add(presentPanel);
+					presentDialog
+							.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					presentDialog.setVisible(true);
+				} else {
+					System.err.println("There is no " + strPath
+							+ "folder!");
+					return;
+				}
+
+			}
+		});
 	}
 
 	// /**
@@ -139,6 +241,7 @@ public class ConflictClient implements ConflictDaemon.ComputationListener {
 		JMenuItem clearCache = new JMenuItem("Clear cache");
 		JMenuItem exit = new JMenuItem("Exit");
 		JMenuItem about = new JMenuItem("About");
+		JMenuItem present = new JMenuItem("Present");
 		JMenuItem reload = new JMenuItem("Reload configuration");
 		JMenuItem blank = new JMenuItem("");
                 
@@ -158,6 +261,32 @@ public class ConflictClient implements ConflictDaemon.ComputationListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ConflictSystemTray.getInstance().aboutAction();
+			}
+		});
+		
+present.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String strPath = "./dropbox/";//$$$$
+				// TODO Auto-generated method stub
+				File file = new File(strPath);
+				if (file.isDirectory()) {
+					String[] files = PresentPanel.filterFiles(file.list());
+					PresentPanel presentPanel = new PresentPanel(files, _frame,strPath, image_map);
+					presentPanel.setPicPath(strPath);
+					presentDialog = new JDialog(_frame);
+					presentDialog.setSize(500, 500);
+					presentDialog.add(presentPanel);
+					presentDialog
+							.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					presentDialog.setVisible(true);
+				} else {
+					System.err.println("There is no " + strPath
+							+ "folder!");
+					return;
+				}
+
 			}
 		});
 
@@ -403,6 +532,7 @@ public class ConflictClient implements ConflictDaemon.ComputationListener {
         SpringLayoutUtility.formGridInColumn(grid, prefs.getProjectPreference().size(), 1);
 
         _frame.getContentPane().add(grid);
+        _frame.getContentPane().add(PresentPanel1);
     }
 
 	
@@ -531,13 +661,11 @@ public class ConflictClient implements ConflictDaemon.ComputationListener {
 					current.removeAll();
 
 					Relationship result = ConflictDaemon.getInstance().getRelationship(source);
-					
 					String tip = result.getToolTipText();
 					ImageIcon icon = result.getIcon();
+					
 	////////////////////////////////////////////////////////////////////////////////////////////////////////				
-					if(result.equals(Relationship.MERGECLEAN)){
-						
-						
+					if(result.getName() == Relationship.MERGECLEAN){
 						RepoKind kind = source.getKind();
 						String mine = projPref.getProjectCheckoutLocation(projPref.getEnvironment());
 						String yours = projPref.getProjectCheckoutLocation(source);
@@ -576,9 +704,8 @@ public class ConflictClient implements ConflictDaemon.ComputationListener {
 						//clones my project to a file: tempFileDirectory/image/MyRepo_YourRepo
 						String[] mergeArgs = { "clone", mine, tempMergedName };
 						try {
-							output = RunIt.execute(executablePath, mergeArgs, tempWorkPath + tempMergedName, false);
+							output = RunIt.execute(executablePath, mergeArgs, tempWorkPath, false);
 						} catch (IOException e2) {
-							//should be done
 						}
 						//pulls in your project to merged with mine						
 						String[] pullArgs = { "pull", yours };
@@ -605,11 +732,15 @@ public class ConflictClient implements ConflictDaemon.ComputationListener {
 						//Aurora's part start
 						ChangeItem changeItem = CalculateChangeTask.performTask(executablePath, tempWorkPath + source.getShortName(), tempWorkPath + projectSource.getShortName());						
 						//Aurora's part end
-						ImageBuilder ib = new ImageBuilder(tempWorkPath + source.getShortName(), changeItem.changedFiles, changeItem.changedFilesContents);
+						System.out.println("Building");
+						ImageBuilder ib = new ImageBuilder(tempWorkPath + projectSource.getShortName(), changeItem.changedFiles, changeItem.changedFilesContents
+															,source.getShortName(), "1", mine);
 						
-						ib = new ImageBuilder(tempWorkPath + projectSource.getShortName(), changeItem.changedFiles, changeItem.changedFilesContents);
+						ib = new ImageBuilder(tempWorkPath + source.getShortName(), changeItem.changedFiles, changeItem.changedFilesContents
+											  , source.getShortName(), "2", mine);
 						
-						ib = new ImageBuilder(tempWorkPath + tempMergedName, changeItem.changedFiles, changeItem.changedFilesContents);
+						ib = new ImageBuilder(tempWorkPath + tempMergedName, changeItem.changedFiles, changeItem.changedFilesContents
+											   , source.getShortName(), "3", mine);
 						}catch(IOException e2){
 						    System.err.println("IOException");
 						}
@@ -625,6 +756,67 @@ public class ConflictClient implements ConflictDaemon.ComputationListener {
 						icon = errorRelation.getIcon();
 					}
 					current.setIcon(icon);
+					
+					if(result.getName() == Relationship.MERGECLEAN){
+						//$$$$$
+						graphicDirectory = projPref.getProjectCheckoutLocation(projPref.getEnvironment())+"/img/"+source.getShortName();
+						String dir_name = graphicDirectory+"/";
+						File temp_dir = new File(dir_name);
+						
+						if(!temp_dir.exists())
+							temp_dir.mkdir();
+						
+						File[] files = temp_dir.listFiles();	
+						int no = 1;
+					    for (int i=0;i<files.length;i++) 
+					    {
+					    	if (files[i].isDirectory()) 
+							{
+					    		image_map.add(files[i].getName());
+					    		
+					    		File srcFile = new File( dir_name+files[i].getName()+"/1.jpg" );
+					    		
+					    		if(!srcFile.exists())
+					    			continue;
+					    		
+					    		File meau_file = new File(dir_name+"/"+no+".jpg");	
+					    		
+					    		System.out.println("create index image: from "+dir_name+files[i].getName()+"/1.jpg"+" to "+dir_name+"/"+no+".jpg");
+					    		
+					    		no++;
+					    		BufferedInputStream in = null;
+					    		BufferedOutputStream out = null;
+					    		byte[] tmp = new byte[1];
+								try {
+									in = new BufferedInputStream(new FileInputStream(srcFile));
+									out = new BufferedOutputStream(new FileOutputStream( meau_file));
+								} catch (FileNotFoundException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+					    		try {
+									while( in.read(tmp) != -1 )
+									{
+										out.write(tmp);
+									}
+									in.close();
+									out.close();
+					    		} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+					    }
+						
+						
+						//set action $$$$$
+						//result.equals(Relationship.MERGECLEAN); $$$$$
+						if(result.getName() == Relationship.MERGECLEAN)
+						{
+							current.removeMouseListener(this);
+							current.addMouseListener(this);
+						}
+					}				
 
 /*
 					
@@ -665,6 +857,90 @@ public class ConflictClient implements ConflictDaemon.ComputationListener {
 	public void show() {
 		_frame.setVisible(true);
 		_frame.toFront();
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		//JLabel temp = (JLabel)e.getSource();
+		//String source_name =  temp.getName();
+	
+		String strPath = graphicDirectory;//$$$$
+		//String strPath = "./dropbox/tmp/pic/"+source_name+"/";//$$$$
+		File file = new File(strPath);
+		if (file.isDirectory()) {
+			String[] files = PresentPanel.filterFiles(file.list());
+			PresentPanel presentPanel = new PresentPanel(files, _frame,strPath,strPath,image_map);
+			presentPanel.setPicPath(strPath);
+			if(presentDialog_source == 1)
+				presentDialog.dispose();
+			presentDialog = new JDialog(_frame);
+			presentDialog.setSize(presentPanel.panelWidth+50,presentPanel.panelHeight+50);
+			//presentDialog.setSize(300, 300);
+			presentDialog.setLocation(e.getX()+500, e.getY()+100);
+			presentDialog.add(presentPanel);
+			presentDialog
+					.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			presentDialog.setVisible(true);
+			presentDialog_source = 2;
+		} else {
+			System.err.println("There is no " + strPath
+					+ "folder!");
+			return;
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stube
+				//JLabel temp = (JLabel)e.getSource();
+				//String source_name =  temp.getName();
+			
+				String strPath = graphicDirectory;//$$$$
+				//String strPath = "./dropbox/tmp/pic/"+source_name+"/";//$$$$
+				File file = new File(strPath);
+				if (file.isDirectory()) {
+					String[] files = PresentPanel.filterFiles(file.list());
+					PresentPanel presentPanel = new PresentPanel(files, _frame,strPath,strPath,image_map);
+					presentPanel.setPicPath(strPath);
+					presentDialog = new JDialog(_frame);
+					presentDialog.setSize(presentPanel.panelWidth+50,presentPanel.panelHeight+50);
+					//presentDialog.setSize(250, 250);
+					presentDialog.setLocation(e.getX()+300, e.getY()+100);
+					presentDialog.add(presentPanel);
+					presentDialog
+							.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					presentDialog.setVisible(true);
+					presentDialog_source = 1;
+				} else {
+					System.err.println("There is no " + strPath
+							+ "folder!");
+					return;
+				}
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		if(presentDialog_source==1)
+		{
+			presentDialog.dispose();
+			presentDialog_source = 0;
+		}
+		
+	}
+	
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

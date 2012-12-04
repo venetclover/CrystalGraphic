@@ -63,13 +63,15 @@ public class CalculateChangeTask {
 		exeResult = RunIt.execute(_gitPath, gitFilesArgs, myDir, false);
 		ChangedFiles = exeResult.getOutput().split("\n");
 		for (String s : ChangedFiles)
-			ChangedFilesSet.add(s);
+			if (!s.equals(""))
+				ChangedFilesSet.add(s);
 
 		// Execute command in yourDir
-		exeResult = RunIt.execute(_gitPath, gitFilesArgs, myDir, false);
+		exeResult = RunIt.execute(_gitPath, gitFilesArgs, yourDir, false);
 		ChangedFiles = exeResult.getOutput().split("\n");
 		for (String s : ChangedFiles)
-			ChangedFilesSet.add(s);
+			if (!s.equals(""))
+				ChangedFilesSet.add(s);
 
 		ChangeItem files = new ChangeItem();
 
@@ -79,7 +81,7 @@ public class CalculateChangeTask {
 		if (!yourDir.endsWith(File.separator))
 			yourDir = yourDir + File.separator;
 
-		int i = 1;
+		int i = 0;
 		for (Object s : ChangedFilesSet) {
 
 			List<String> myFileLines = fileToLines(myDir + s);
@@ -93,15 +95,19 @@ public class CalculateChangeTask {
 			String contentLines = "";
 			for (DiffRow dr : rows) {
 				if (dr.getTag() == DiffRow.Tag.DELETE)
-//					System.out.println("-\t" + dr.getOldLine());
-					contentLines = contentLines + "-\t"+dr.getOldLine()+"\n";
+					// System.out.println("-\t" + dr.getOldLine());
+					contentLines = contentLines + "-\t" + dr.getOldLine()
+							+ "\n";
 				else if (dr.getTag() == DiffRow.Tag.INSERT)
-//					System.out.println("+\t" + dr.getNewLine());
-					contentLines = contentLines + "+\t"+dr.getNewLine()+"\n";
-				else if (dr.getTag() == DiffRow.Tag.CHANGE){
-//					System.out.println("+-\t" + dr.getNewLine());
-					contentLines = contentLines + "+\t"+dr.getNewLine()+"\n";
-					contentLines = contentLines + "-\t"+dr.getOldLine()+"\n";
+					// System.out.println("+\t" + dr.getNewLine());
+					contentLines = contentLines + "+\t" + dr.getNewLine()
+							+ "\n";
+				else if (dr.getTag() == DiffRow.Tag.CHANGE) {
+					// System.out.println("+-\t" + dr.getNewLine());
+					contentLines = contentLines + "+\t" + dr.getNewLine()
+							+ "\n";
+					contentLines = contentLines + "-\t" + dr.getOldLine()
+							+ "\n";
 				}
 			}
 			files.changedFiles.add(i, (String) s);

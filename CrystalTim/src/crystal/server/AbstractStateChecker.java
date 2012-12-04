@@ -474,7 +474,7 @@ public abstract class AbstractStateChecker {
 		}
 
 		if (output.getOutput().indexOf("(run '" + kind.toString().toLowerCase() + " heads' to see heads, '" + kind.toString().toLowerCase() + " merge' to merge)") >= 0
-				|| output.getOutput().indexOf("Auto-merging") >= 0) {
+				|| output.getOutput().indexOf("Auto-merging") >= 0 || output.getOutput().indexOf("Merge made by the \'recursive\'") >= 0) {
 			// there are two heads, so let's see if they merge cleanly
 			String[] mergeArgs = { "merge", "--noninteractive" };
 			try {
@@ -484,7 +484,8 @@ public abstract class AbstractStateChecker {
 				return Relationship.ERROR + " Couldn't execute merge: " + e2.getMessage();
 			}
 			// if the merge goes through cleanly, we can try to compile and test
-			if (output.getOutput().indexOf("(branch merge, don't forget to commit)") >= 0 || output.getOutput().indexOf("Merge made by recursive.") >= 0) {
+			if (output.getOutput().indexOf("(branch merge, don't forget to commit)") >= 0 || output.getOutput().indexOf("Merge made by the \'recursive\'") >= 0) {
+//			if (output.getOutput().indexOf("(branch merge, don't forget to commit)") >= 0) {
 				// try to compile
 				String compileCommand = prefs.getEnvironment().getCompileCommand();
 				if (compileCommand != null) {

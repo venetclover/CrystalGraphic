@@ -1,22 +1,16 @@
-package crystal.util;
+package crystal.client;
 
 
 import java.io.BufferedInputStream;
 import java.lang.Runtime; 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.*;
 
 /**
@@ -63,7 +57,7 @@ public class ImageBuilder {
 	}
 
 	public void ImageDirBuilder(String delpath,  ArrayList<String> changedFiles, ArrayList<String> log, String name) throws IOException
-	{	
+	{	System.out.println("XD");
 		try {
 		      File file = new File(delpath);
 		      if (!file.isDirectory()) 
@@ -72,7 +66,7 @@ public class ImageBuilder {
 		    	  {
 		    		  if(file.getAbsolutePath().compareTo(delpath+changedFiles.get(k)) == 0)
 		    		  {
-		    			  ImageFileBuilder(delpath+"/"+file.getName(),log.get(k), name);
+		    			  ImageFileBuilder(delpath+"/"+file.getName(),log.remove(k), name);
 		    			  break;
 		    		  }
 		    	  }
@@ -87,11 +81,9 @@ public class ImageBuilder {
 		    		  {
 		    			  for(int k=0;k<changedFiles.size();k++)
 				    	  {
-				    		 // if(childfile.getAbsolutePath().compareTo(delpath+"/"+changedFiles.get(k)) == 0)
-				    	  	  if(changedFiles.get(k).contains(childfile.getName()))
+				    		  if(childfile.getAbsolutePath().compareTo(delpath+changedFiles.get(k)) == 0)
 				    		  {
-				    			  ImageFileBuilder(delpath+"/"+childfile.getName(),log.get(k), name);
-				    			  changedFiles.get(k);
+				    			  ImageFileBuilder(delpath+"/"+childfile.getName(),log.remove(k), name);
 				    			  break;
 				    		  }
 				    	  }
@@ -108,14 +100,43 @@ public class ImageBuilder {
 	}
 
 	public ImageBuilder(String delpath, ArrayList<String> changedFiles, ArrayList<String> log, String target_name , String name, String selfDir) throws IOException
-	{
-		//System.out.println("del"+delpath+",number"+name);
+	{System.out.println("target:"+target_name+";dir:"+selfDir);
 		this.target = target_name;
 		this.dir = selfDir;
 		ImageDirBuilder(delpath, changedFiles, log, name);
 	}
 
 	public static void build(String filename){
+		File file = new File(filename);
+		FileInputStream fis = null;
+		BufferedInputStream bis = null;
+		DataInputStream dis = null;
+
+		try {
+			fis = new FileInputStream(file);
+
+			// Here BufferedInputStream is added for fast reading.
+			bis = new BufferedInputStream(fis);
+			dis = new DataInputStream(bis);
+
+			// dis.available() returns 0 if the file does not have more lines.
+			while (dis.available() != 0) {
+
+				// this statement reads the line from the file and print it to
+				// the console.
+				System.out.println(dis.readLine());
+			}
+
+			// dispose all the resources after using them.
+			fis.close();
+			bis.close();
+			dis.close();
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static boolean deleteDir(File dir) 
@@ -134,21 +155,10 @@ public class ImageBuilder {
 
 	public static void buildMatlab(String filename, String log, String name) throws IOException{
 		File file = new File(filename);
-		
-		File imagebuilderfile = new File(filename.substring(0,filename.length()-file.getName().length())+"BuildImage/");
-		if(!imagebuilderfile.exists())
-		{
-			System.out.println("Mkdir: "+ filename.substring(0,filename.length()-file.getName().length())+"BuildImage/");
-			imagebuilderfile.mkdir();
-		}
-		
-		String newfile_name = filename.substring(0,filename.length()-file.getName().length())+"BuildImage/"+file.getName();
+		String newfile_name = filename.substring(0,filename.length()-2)+"_BuildImage.m";
 		File newfile = new File(newfile_name);
-		//System.out.println(newfile_name+" XD");
 		Runtime run = Runtime.getRuntime();
 		int change=0;
-		
-		//System.out.println("target:"+newfile_name);
 		
 		if(newfile.exists())
 			newfile.delete();
@@ -157,13 +167,13 @@ public class ImageBuilder {
 		{
 			System.out.println("Fail: cannot create a newfile");
 		}
-		//FileInputStream fis = null;
-		//BufferedInputStream bis = null;
-		BufferedReader dis = null;
+		FileInputStream fis = null;
+		BufferedInputStream bis = null;
+		DataInputStream dis = null;
 
-		//FileOutputStream fos = null;
-		//BufferedOutputStream bos = null;
-		BufferedWriter dos = null;
+		FileOutputStream fos = null;
+		BufferedOutputStream bos = null;
+		DataOutputStream dos = null;
 
 		String source_code;
 		int start,end;
@@ -173,26 +183,24 @@ public class ImageBuilder {
 		try {
 
 //step 1 - initial Image
-			//fis = new FileInputStream(file);
+			fis = new FileInputStream(file);
 			// Here BufferedInputStream is added for fast reading.
-			//bis = new BufferedInputStream(fis);
-			//dis = new DataInputStream(bis);
-			
-			dis = new BufferedReader(new FileReader(file));
+			bis = new BufferedInputStream(fis);
+			dis = new DataInputStream(bis);
 
 			// dis.available() returns 0 if the file does not have more lines.
-			while ((source_code = dis.readLine() )!= null) {
-				//System.out.println(source_code);
+			while (dis.available() != 0) {
+				source_code = dis.readLine();
+
 				if(source_code.contains("%<Image>"))
 				{
 					start = source_code.indexOf("=");
-					if(start>0)
-						image_list.add(source_code.substring(0, start).replaceAll(" ", ""));
+					image_list.add(source_code.substring(0, start).replaceAll(" ", ""));
 					//img_write.add(false);
 				}
 			}
-			//fis.close();
-			//bis.close();
+			fis.close();
+			bis.close();
 			dis.close();
 
 //step 2 - get modified log - from parameter
@@ -214,40 +222,25 @@ public class ImageBuilder {
 			change = image_list.size();
 
 //step 4 & 5 - find position and write document 			
-			//fis = new FileInputStream(file);
+			fis = new FileInputStream(file);
 			// Here BufferedInputStream is added for fast reading.
-			//bis = new BufferedInputStream(fis);
-			//dis = new DataInputStream(bis);
+			bis = new BufferedInputStream(fis);
+			dis = new DataInputStream(bis);
 
-			dis = new BufferedReader(new FileReader(file));
-			
-			//fos = new FileOutputStream(newfile);
+			fos = new FileOutputStream(newfile);
 			// Here BufferedInputStream is added for fast reading.
-			//bos = new BufferedOutputStream(fos);
-			dos =  new BufferedWriter(new FileWriter(newfile));
+			bos = new BufferedOutputStream(fos);
+			dos = new DataOutputStream(bos);
 			
 			//remove all image and create a new one
-			File temp_dir2 = new File(dir+"/img/");
-			if(!temp_dir2.exists())
-			{
-				new File(dir+"/img/").mkdir();
-				System.out.println("mkdir: "+dir+"/img/");
-			}
-			
-			
-			File temp_dir = new File(dir+"/img/"+target+"/");
-			
-			//deleteDir(temp_dir);
-			if(!temp_dir.exists())
-			{
-				new File(dir+"/img/"+target+"/").mkdir();
-				System.out.println("mkdir: "+dir+"/img/"+target+"/");
-			}
-			// dis.available() returns 0 if the file does not have more lines.
-			while ((source_code = dis.readLine() )!= null) {
-				//System.out.println(source_code);
-				//source_code = dis.readLine();
+			File temp_dir = new File(dir+target+"/");
+			deleteDir(temp_dir);
+			new File(dir+target+"/").mkdir();
 
+			// dis.available() returns 0 if the file does not have more lines.
+			while (dis.available() != 0) {
+
+				source_code = dis.readLine();
 				temp_str =  source_code.replaceAll(" ", "");
 
 				for(i=0;i<image_list.size();i++)
@@ -257,9 +250,9 @@ public class ImageBuilder {
 					{
 						try
 						{
-							if(!(new File(dir+"/img/"+target+"/"+image_list.get(i)+"/").isDirectory()))
+							if(!(new File(dir+target+"/"+image_list.get(i)+"/").isDirectory()))
 							{
-								new File(dir+"/img/"+target+"/"+image_list.get(i)+"/").mkdir();
+								new File(dir+target+"/"+image_list.get(i)+"/").mkdir();
 							}
 						}
 						catch(SecurityException e)
@@ -267,27 +260,26 @@ public class ImageBuilder {
 						        e.printStackTrace();
 						}
 						
-						/*dos.writeChars("set(figure(1),'visible','off');\n" +
+						dos.writeChars("set(figure(1),'visible','off');\n" +
 								"imshow("+image_list.get(i)+")\n" +
-								" print(gcf,'-djpeg','"+dir+"/img/"+target+"/"+image_list.get(i)+"/"+name+".jpg') \n" +
-								"set(figure(1),'visible','on');\n");*/
-						
-						dos.write("imwrite("+image_list.get(i)+", '"+ dir+"/img/"+target+"/"+image_list.get(i)+"/"+name+".jpg');\n");
+								" print(gcf,'-djpeg','"+dir+target+"/"+image_list.get(i)+"/"+name+".jpg') \n" +
+								"set(figure(1),'visible','on');\n");
+
 						image_list.remove(i);
 						i--;
 					}
 				}
 
-				dos.write(source_code+"\n");
+				dos.writeChars(source_code+"\n");
 			}
 
 			for(i=0;i<image_list.size();i++)
 			{
 				try
 				{
-					if(!(new File(dir+"/img/"+target+"/"+image_list.get(i)+"/").isDirectory()))
+					if(!(new File(dir+target+"/"+image_list.get(i)+"/").isDirectory()))
 					{
-						new File(dir+"/img/"+target+"/"+image_list.get(i)+"/").mkdir();
+						new File(dir+target+"/"+image_list.get(i)+"/").mkdir();
 					}
 				}
 				catch(SecurityException e)
@@ -295,45 +287,32 @@ public class ImageBuilder {
 				        e.printStackTrace();
 				}
 				
-			/*	dos.writeChars("set(figure(1),'visible','off');\n" +
+				dos.writeChars("set(figure(1),'visible','off');\n" +
 						"imshow("+image_list.get(i)+")\n" +
-						" print(gcf,'-djpeg','"+dir+"/img/"+target+"/"+image_list.get(i)+"/"+name+".jpg') \n"+
-						"set(figure(1),'visible','on');\n");*/
-				dos.write("imwrite("+image_list.get(i)+", '"+ dir+"/img/"+target+"/"+image_list.get(i)+"/"+name+".jpg');\n");
-				
+						" print(gcf,'-djpeg','"+dir+target+"/"+image_list.get(i)+"/"+name+".jpg') \n"+
+						"set(figure(1),'visible','on');\n");
 			}
 			dos.flush();
-			//fis.close();
-			//bis.close();
+			fis.close();
+			bis.close();
 			dis.close();
-			//fos.close();
-			//bos.close();
+			fos.close();
+			bos.close();
 			dos.close();
 			// dispose all the resources after using them.
-			
-			copyfile(newfile,file);
 
 
 // step 5 - save Image result
 			if(change != 0)
 			{
-				System.out.println("matlab_exe: \"C:\\Program Files\\MATLAB\\R2012a\\bin\\matlab.exe\" -nodesktop -nodisplay -nosplash -minimize -r \"run "+filename+"; quit;\" -logfile jfdoijffdoisjfdoi.txt");
-				Process process = run.exec("\"C:\\Program Files\\MATLAB\\R2012a\\bin\\matlab.exe\" -nodesktop -nodisplay -nosplash -minimize -r \"run "+filename+"; quit;\" -logfile jfdoijffdoisjfdoi.txt");
-				
-				Thread.sleep(20000);
-				//process.waitFor();
-				//run.exec("matlab -nodesktop -nodisplay -r run("+newfile_name.substring(0, newfile_name.length()-2)+")");
-				//run.exec("./" + newfile_name.substring(0, newfile_name.length()-2));
-				//System.exit(0);
+				run.exec("mcc -m "+newfile_name);
+				run.exec("./" + newfile_name.substring(0, newfile_name.length()-2));
 			}
 
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -523,35 +502,5 @@ public class ImageBuilder {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private static void copyfile(File f1, File f2){
-	try{
-		  //File f1 = new File(srFile);
-		  //File f2 = new File(dtFile);
-		  InputStream in = new FileInputStream(f1);
-		  
-		  //For Append the file.
-		//  OutputStream out = new FileOutputStream(f2,true);
-
-		  //For Overwrite the file.
-		  OutputStream out = new FileOutputStream(f2);
-
-		  byte[] buf = new byte[1024];
-		  int len;
-		  while ((len = in.read(buf)) > 0){
-		  out.write(buf, 0, len);
-		  }
-		  in.close();
-		  out.close();
-		  System.out.println("File copied.");
-		  }
-		  catch(FileNotFoundException ex){
-		  System.out.println(ex.getMessage() + " in the specified directory.");
-		  System.exit(0);
-		  }
-	catch(IOException e){
-		  System.out.println(e.getMessage());  
-		  }
 	}
 }
