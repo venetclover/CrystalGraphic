@@ -55,6 +55,7 @@ public class CalculateChangeTask {
 		String[] ChangedFiles;
 		HashSet<Object> ChangedFilesSet = new HashSet<Object>();
 
+		/*
 		// Prepare the command
 		String[] gitFilesArgs = { "log", "-1", "--pretty=format:\"\"",
 				"--name-only" };
@@ -72,7 +73,23 @@ public class CalculateChangeTask {
 		for (String s : ChangedFiles)
 			if (!s.equals(""))
 				ChangedFilesSet.add(s);
-
+		*/
+		
+		File myDirF = new File(myDir);
+		File yourDirF = new File(yourDir);
+		
+		String[] myFiles = myDirF.list();
+		String[] yourFiles = yourDirF.list();
+		
+		for (String s : myFiles)
+			if (!s.equals(""))
+				ChangedFilesSet.add(s);
+		
+		for (String s : yourFiles)
+			if (!s.equals(""))
+				ChangedFilesSet.add(s);
+		
+		
 		ChangeItem files = new ChangeItem();
 
 		if (!myDir.endsWith(File.separator))
