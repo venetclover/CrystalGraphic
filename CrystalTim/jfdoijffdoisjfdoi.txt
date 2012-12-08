@@ -2,11 +2,13 @@
 To get started, type one of these: helpwin, helpdesk, or demo.
 For product information, visit www.mathworks.com.
  
-{Error using imread (line 407)
-File "test.jpg" does not exist.
+{Error using run (line 65)
+C:\Users\aurora\Downloads\image\Project\Mytest.m not found.
+} 
+und.
+} 
+r in Mytest (line 4)
 
-Error in Mytest (line 2)
-image1 = imread('test.jpg','jpeg'); %<Image>
 
 Error in run (line 57)
           evalin('caller', [s ';']);

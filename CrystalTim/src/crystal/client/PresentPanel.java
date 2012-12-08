@@ -181,9 +181,7 @@ public class PresentPanel extends JPanel {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					// Something to do when a picture is selected
-					disLabel.setText("You have selected picture "
-							+ (1 + Integer.parseInt(((JLabel) e.getSource())
-									.getName())));
+					//disLabel.setText(image_map.get(Integer.parseInt(((JLabel) e.getSource()).getName())));
 					selectedIndex = Integer.parseInt(((JLabel) e.getSource())
 							.getName());
 					
@@ -194,9 +192,10 @@ public class PresentPanel extends JPanel {
 						String[] files = PresentPanel.filterFiles(file.list());
 						PresentPanelDetail presentPanel = new PresentPanelDetail(files, parentFrame,strPath,dir);
 						presentPanel.setPicPath(strPath);
-						if(presentDialog!=null)
-							presentDialog.dispose();
+						//if(presentDialog!=null)
+							//presentDialog.dispose();
 						presentDialog = new JDialog(parentFrame);
+						presentDialog.setTitle( image_map.get(Integer.parseInt(((JLabel) e.getSource()).getName())));
 						presentDialog.setSize(presentPanel.panelWidth+50,presentPanel.panelHeight+50);
 						//presentDialog.setSize(500, 500);
 						presentDialog.setLocation(e.getX()+300, e.getY()+100);

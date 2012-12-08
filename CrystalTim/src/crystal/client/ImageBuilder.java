@@ -44,7 +44,7 @@ public class ImageBuilder {
 	{
 		if(filename.substring(filename.length() - 5, filename.length()).equals(".java"))
 		{
-			buildJava(filename, log, name);
+			//buildJava(filename, log, name);
 		}
 		else if(filename.substring(filename.length() - 2, filename.length()).equals(".m"))
 		{
@@ -318,6 +318,7 @@ public class ImageBuilder {
 	}
 
 
+	//Still on working
 	public static void buildJava(String filename, String log, String name) throws IOException{
 		File file = new File(filename);
 		String newfile_name = filename.substring(0,filename.length()-5)+"_BuildImage.java";

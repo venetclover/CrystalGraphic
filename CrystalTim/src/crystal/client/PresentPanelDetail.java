@@ -172,10 +172,9 @@ public class PresentPanelDetail extends JPanel {
 
 				@Override
 				public void mouseClicked(MouseEvent e) {
+					String str_map[] = {"Only by own algorithm","By merged algorithm","Only by other's algorithm"};
 					// Something to do when a picture is selected
-					disLabel.setText("You have selected picture "
-							+ (1 + Integer.parseInt(((JLabel) e.getSource())
-									.getName())));
+					disLabel.setText("["+str_map[Integer.parseInt(((JLabel) e.getSource()).getName())]+"]  Pixels: "+((JLabel) e.getSource()).getWidth()+"X"+((JLabel) e.getSource()).getHeight());
 					selectedIndex = Integer.parseInt(((JLabel) e.getSource())
 							.getName());
 

@@ -737,10 +737,10 @@ present.addActionListener(new ActionListener() {
 															,source.getShortName(), "1", mine);
 						
 						ib = new ImageBuilder(tempWorkPath + source.getShortName(), changeItem.changedFiles, changeItem.changedFilesContents
-											  , source.getShortName(), "2", mine);
+											  , source.getShortName(), "3", mine);
 						
 						ib = new ImageBuilder(tempWorkPath + tempMergedName, changeItem.changedFiles, changeItem.changedFilesContents
-											   , source.getShortName(), "3", mine);
+											   , source.getShortName(), "2", mine);
 						}catch(IOException e2){
 						    System.err.println("IOException");
 						}
@@ -876,6 +876,8 @@ present.addActionListener(new ActionListener() {
 				presentDialog.dispose();
 			presentDialog = new JDialog(_frame);
 			presentDialog.setSize(presentPanel.panelWidth+50,presentPanel.panelHeight+50);
+			String temp_div[] = strPath.split("/");
+			presentDialog.setTitle( "With " + temp_div[temp_div.length-1]);
 			//presentDialog.setSize(300, 300);
 			presentDialog.setLocation(e.getX()+500, e.getY()+100);
 			presentDialog.add(presentPanel);
@@ -905,6 +907,8 @@ present.addActionListener(new ActionListener() {
 					presentPanel.setPicPath(strPath);
 					presentDialog = new JDialog(_frame);
 					presentDialog.setSize(presentPanel.panelWidth+50,presentPanel.panelHeight+50);
+					String temp_div[] = strPath.split("/");
+					presentDialog.setTitle( "With " + temp_div[temp_div.length-1]);
 					//presentDialog.setSize(250, 250);
 					presentDialog.setLocation(e.getX()+300, e.getY()+100);
 					presentDialog.add(presentPanel);
